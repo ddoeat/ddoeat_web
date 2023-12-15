@@ -1,0 +1,22 @@
+name: Daily Sync Fork
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # 매일 자정 (UTC 시간 기준)
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        ref: main  # main 브랜치 동기화
+        fetch-depth: 0
+
+    - name: Sync Fork
+      run: |
+        git remote add upstream https://github.com/deepromeet/14th-team4-FE.git
+        git fetch upstream
+        git merge upstream/main
+        git push
