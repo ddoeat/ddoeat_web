@@ -16,7 +16,7 @@ jobs:
 
     - name: Sync Fork
       run: |
-        git remote add upstream https://github.com/deepromeet/14th-team4-FE.git
+        git remote add upstream https://github.com/depromeet/ddoeat_client.git
         git fetch upstream
         git merge upstream/main
         git push
