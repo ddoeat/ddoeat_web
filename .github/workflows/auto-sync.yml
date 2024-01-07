@@ -16,6 +16,8 @@ jobs:
 
     - name: Sync Fork
       run: |
+        git config --global user.email "ddoeatddoeat@gmail.com"
+        git config --global user.name "ddoeat"
         git remote add upstream https://github.com/depromeet/ddoeat_client.git
         git fetch upstream
         git merge upstream/main
