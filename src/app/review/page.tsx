@@ -2,6 +2,7 @@
 
 import { useState, useCallback, ChangeEvent, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { NewStore, usePostLog } from '@hooks/api/usePostLog';
 import { useGetPresignedUrl } from '@hooks/api/useGetPresignedUrl';
@@ -14,12 +15,14 @@ import { useUploadImageToNCloud } from '@hooks/api/useUploadImageToNCloud';
 import Header from '@components/common/Header';
 
 export default function Page() {
+  const queryClient = useQueryClient();
   const { push } = useRouter();
   const searchParams = useSearchParams();
   const storeName = searchParams.get('storeName');
   const myRevisitedCount = searchParams.get('myRevisitedCount') ?? 0;
   const { mutate: postLog } = usePostLog({
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['get-myLog'] });
       push(
         `/review/complete?storeName=${storeName}&myRevisitedCount=${
           Number(myRevisitedCount) + 1
@@ -106,7 +109,7 @@ export default function Page() {
 
   return (
     <div className="bg-gray-100">
-      <Header className="w-full bg-gray-100">
+      <Header className="w-full bg-gray-100 z-header">
         <p className="body-16-bold">로그 작성</p>
       </Header>
       <div className="h-[100dvh] pt-[56px] pb-[104px] overflow-y-scroll px-[16px]">

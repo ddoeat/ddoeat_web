@@ -36,19 +36,21 @@ export default function StoreDetailLog({
         date={date}
         onClick={onClick}
       />
-      <div className="flex flex-col justify-center">
-        <div className="px-[16px] py-[8px]">
-          {storeImgUrl && (
+      <div className="flex flex-col justify-center ">
+        {storeImgUrl && (
+          <div className="max-h-[200px] rounded-[20px] overflow-hidden">
             <Image
+              priority
               src={storeImgUrl}
               alt={name}
               width={343}
               height={150}
               layout="responsive"
-              objectFit="cover"
+              placeholder="blur"
+              blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFklEQVR42mN8//HLfwYiAOOoQvoqBABbWyZJf74GZgAAAABJRU5ErkJggg=="
             />
-          )}
-        </div>
+          </div>
+        )}
         <span className="px-[16px] py-[8px] break-all body-14-regular text-gray-700">
           {log}
         </span>

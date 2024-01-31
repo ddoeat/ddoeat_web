@@ -48,7 +48,7 @@ export default function BookMarkContent() {
 
   const { setTarget } = useObserver({
     onIntersect,
-    threshold: 1,
+    threshold: 0.5,
   });
 
   const handleTagClick = (tagId: TagType['id']): void => {
@@ -98,16 +98,17 @@ export default function BookMarkContent() {
                   <BookmarkItem
                     key={item.bookmarkId}
                     isLast={false}
+                    storeId={item.storeId}
                     location={item.address}
                     menuType={item.categoryName}
                     revisitNum={item.totalRevisitedCount}
                     storeName={item.storeName}
-                    onClick={() => handleDeleteItem(item.bookmarkId)}
+                    onClick={() => handleDeleteItem(item.storeId)}
                   />
                 );
               });
           })}
-        {!isLoading && hasNextPage && <div ref={setTarget} />}
+        {!isLoading && hasNextPage && <div ref={setTarget} className="h-1" />}
       </div>
     </>
   );
