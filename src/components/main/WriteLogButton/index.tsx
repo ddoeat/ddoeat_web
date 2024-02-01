@@ -82,7 +82,7 @@ export default function WriteLogButton({
   };
 
   useEffect(() => {
-    if (!isRefetching || !isSuccess) return;
+    if (isRefetching || !isSuccess) return;
 
     if (!data.isAvailable) {
       toast('같은 곳은 하루에 3번만 기록 가능해요!');
@@ -109,7 +109,7 @@ export default function WriteLogButton({
       )}
       {...restProps}
     >
-      <span className="group-disabled:text-gray-500">로그 작성</span>
+      <span className="group-disabled:text-gray-500">맛집 기록 작성</span>
       <PenIcon />
     </Button>
   );
