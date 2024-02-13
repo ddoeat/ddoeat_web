@@ -8,10 +8,6 @@ export async function middleware(request: NextRequest) {
 
   // NOTE: 메인 페이지 진입 시 토큰이 존재하지 않으면 로그인 페이지로 리다이렉트
   if (request.nextUrl.pathname === '/') {
-    if (request.method === 'POST') {
-      return NextResponse.redirect(new URL('/', request.url), 303);
-    }
-
     const cookieAccessToken = request.cookies.get('accessToken');
     const cookieRefreshToken = request.cookies.get('refreshToken');
 
@@ -43,9 +39,9 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
+  const provider = request.nextUrl.searchParams.get('type');
   // NOTE: 카카오 로그인 > 로그인 api 호출 > 토큰 저장 후 메인페이지 이동
-  if (request.nextUrl.pathname === '/auth') {
-    const provider = request.nextUrl.searchParams.get('type');
+  if (request.nextUrl.pathname === '/auth' && provider === 'kakao') {
     const code = request.nextUrl.searchParams.get('code');
     const redirect_uri =
       process.env.NODE_ENV === 'production'
@@ -71,7 +67,10 @@ export async function middleware(request: NextRequest) {
       }
 
       url.search = '';
-      const response = NextResponse.redirect(url);
+      const response =
+        request.method === 'POST'
+          ? NextResponse.redirect(url, 303)
+          : NextResponse.redirect(url);
       if (accessToken && refreshToken) {
         response.cookies.set('accessToken', accessToken, { path: '/' });
         response.cookies.set('refreshToken', refreshToken, { path: '/' });
@@ -81,11 +80,13 @@ export async function middleware(request: NextRequest) {
       // NOTE: 토큰 발급 실패 시 로그인 페이지로 이동
       url.pathname = '/login';
       url.search = '';
-      return NextResponse.redirect(url);
+      return request.method === 'POST'
+        ? NextResponse.redirect(url, 303)
+        : NextResponse.redirect(url);
     }
   }
 }
 
 export const config = {
-  matcher: ['/auth', '/'],
+  matcher: ['/', '/auth'],
 };
