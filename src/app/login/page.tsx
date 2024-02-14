@@ -2,8 +2,8 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import Cookies from 'js-cookie';
 
-import useAppleLogin from '@hooks/api/useAppleLogin';
 import CTAButton from '@components/common/CTAButton';
 import DdoeatLogo from 'public/assets/ddoeat_logo.svg';
 import AppleLogo from 'public/assets/icon24/apple_logo_24.svg';
@@ -22,23 +22,49 @@ const APPLE_REDIRECT_URI =
     : `${process.env.NEXT_PUBLIC_LOCAL_DOMAIN}/login`;
 
 export default function Page() {
-  const { mutate: appleLogin } = useAppleLogin();
-
+  const { push } = useRouter();
   useEffect(() => {
-    // Apple 로그인 성공 이벤트 리스너 등록
-    const handleAppleLoginSuccess = (event: Event) => {
+    const handleAppleLoginSuccess = async (event: Event) => {
+      event.preventDefault();
       const customEvent = event as CustomEvent<AppleSigninResponse>;
       console.log(customEvent.detail);
+      const code = customEvent.detail.authorization.id_token;
 
-      appleLogin({
-        code: customEvent.detail.authorization.id_token,
-        redirect_uri: APPLE_REDIRECT_URI,
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/auth/login`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            provider: 'apple',
+            code,
+            redirect_uri: APPLE_REDIRECT_URI,
+          }),
+        },
+      );
+
+      const responseData = await res.json();
+
+      if (res.status === 200) {
+        const {
+          data: { accessToken, refreshToken, isFirst },
+        } = responseData;
+
+        Cookies.set('accessToken', accessToken);
+        Cookies.set('refreshToken', refreshToken);
+
+        if (isFirst) {
+          push('/terms');
+        } else {
+          push('/');
+        }
+      }
     };
 
-    // Apple 로그인 실패 이벤트 리스너 등록
     const handleAppleLoginFail = (e: unknown) => {
-      console.error(e); // 실패 응답 처리
+      console.error(e);
     };
 
     document.addEventListener(
@@ -47,7 +73,6 @@ export default function Page() {
     );
     document.addEventListener('AppleIDSignInOnFailure', handleAppleLoginFail);
 
-    // 컴포넌트 언마운트 시 이벤트 리스너 제거
     return () => {
       document.removeEventListener(
         'AppleIDSignInOnSuccess',
@@ -58,10 +83,7 @@ export default function Page() {
         handleAppleLoginFail,
       );
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const { push } = useRouter();
 
   const handleClickKakaoLoginButton = () => {
     push(
