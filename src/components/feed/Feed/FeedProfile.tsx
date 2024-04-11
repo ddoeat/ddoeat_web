@@ -3,25 +3,38 @@
 import Image, { ImageProps } from 'next/image';
 import { useRouter } from 'next/navigation';
 
-interface FeedProfileProps extends ImageProps {
+import DefaultProfileImage from 'public/assets/image/default_profile.png';
+
+interface FeedProfileProps extends Omit<ImageProps, 'id'> {
   nickName: string;
-  onClickFollowButton?: () => void;
+  isFollowed: boolean;
   isMyFeed: boolean;
+  userId: number;
 }
 
 export default function FeedProfile({
-  id,
+  userId,
   src,
   alt,
   nickName,
+  isFollowed,
   isMyFeed,
-  onClickFollowButton,
   ...props
 }: FeedProfileProps) {
   const { push } = useRouter();
+
   const handleClickProfile = () => {
-    push(`/feed/detail/${id}`);
+    push(`/profile/${userId}`);
   };
+
+  const handleClickFollowButton = () => {
+    if (isFollowed) {
+      console.log('팔로우');
+    } else {
+      console.log('팔로우 취소');
+    }
+  };
+
   return (
     <div className="flex justify-between items-center w-full body-14-bold">
       <div className="flex gap-[8px] items-center">
@@ -29,11 +42,15 @@ export default function FeedProfile({
           className="relative w-[36px] h-[36px] rounded-[50%] overflow-hidden"
           onClick={handleClickProfile}
         >
-          <Image alt={alt} src={src} fill {...props} />
+          <Image alt={alt} src={src ?? DefaultProfileImage} fill {...props} />
         </div>
         <p>{nickName}</p>
       </div>
-      {!isMyFeed && <button onClick={onClickFollowButton}>팔로우</button>}
+      {!isMyFeed && (
+        <button onClick={handleClickFollowButton}>
+          {isFollowed ? '팔로우 취소' : '팔로우'}
+        </button>
+      )}
     </div>
   );
 }
