@@ -21,14 +21,20 @@ export const usePatchFollow = (): UseMutationResult<
   return useMutation({
     mutationKey: ['patch-follow'],
     mutationFn: (userId) => patchFollow(userId),
-    onSuccess: () => {
+    onSuccess: (_, userId) => {
       queryClient.invalidateQueries({
         queryKey: ['get-following-list'],
         refetchType: 'all',
       });
       queryClient.invalidateQueries({
-        queryKey: ['get-userProfile'],
+        queryKey: ['get-feed-list', {}],
+        refetchType: 'all',
       });
+      if (userId !== undefined) {
+        queryClient.invalidateQueries({
+          queryKey: ['get-userProfile', userId],
+        });
+      }
     },
   });
 };
